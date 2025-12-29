@@ -31,6 +31,23 @@ services:
             - ../FE:/app
             - fe_node_modules:/app/node_modules
 
+    # 프록시 서버 및 SSL/TLS 처리
+    caddy:
+        image: caddy:alpine
+        restart: unless-stopped
+        ports:
+            - "80:80"
+            - "443:443"
+        volumes:
+            - ./Caddyfile:/etc/caddy/Caddyfile
+            - caddy_data:/data
+            - caddy_config:/config
+        depends_on:
+            - be
+            - fe
+
 volumes:
     be_node_modules:
     fe_node_modules:
+    caddy_data:
+    caddy_config:
