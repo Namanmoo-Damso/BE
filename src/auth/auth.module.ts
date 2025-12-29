@@ -5,7 +5,7 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/entities/user.entity';
-import { JwtStrategy } from './jwt.strategy';
+import { JwtStrategy } from '../utils/jwt.strategy';
 
 @Module({
   imports: [
@@ -13,7 +13,7 @@ import { JwtStrategy } from './jwt.strategy';
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'damso-secret-key-change-in-production',
-      signOptions: { expiresIn: '7d' }, // 토큰 유효기간 7일
+      signOptions: { expiresIn: '1h' }, // Access Token 유효기간 1시간
     }),
   ],
   providers: [AuthService, JwtStrategy],

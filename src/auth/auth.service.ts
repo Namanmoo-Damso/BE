@@ -71,20 +71,86 @@ export class AuthService {
 
     // JWT 토큰 생성
     const payload = { sub: user.id, email: user.email };
-    const accessToken = this.jwtService.sign(payload);
+    const accessToken = this.jwtService.sign(payload, {
+      expiresIn: '1h', // Access Token 유효기간 1시간
+    });
 
-    // 마지막 로그인 시간 업데이트
+    // Refresh Token 생성
+    const refreshToken = this.jwtService.sign(payload, {
+      secret: process.env.JWT_REFRESH_SECRET || 'damso-refresh-secret-key-change-in-production',
+      expiresIn: '7d', // Refresh Token 유효기간 7일
+    });
+
+    // Refresh Token 해시화하여 DB에 저장
+    const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+
+    // 마지막 로그인 시간 및 Refresh Token 업데이트
     await this.userRepository.update(user.id, {
       last_login_at: new Date(),
+      refresh_token: hashedRefreshToken,
     });
 
     return {
       accessToken,
+      refreshToken,
       user: {
         id: user.id,
         email: user.email,
         name: user.name,
       },
+    };
+  }
+
+  /**
+   * Refresh Token으로 새로운 Access Token 발급
+   */
+  async refresh(refreshToken: string) {
+    try {
+      // Refresh Token 검증
+      const payload = this.jwtService.verify(refreshToken, {
+        secret: process.env.JWT_REFRESH_SECRET || 'damso-refresh-secret-key-change-in-production',
+      });
+
+      // 사용자 찾기
+      const user = await this.userRepository.findOne({
+        where: { id: payload.sub },
+      });
+
+      if (!user || !user.refresh_token) {
+        throw new UnauthorizedException('유효하지 않은 리프레시 토큰입니다');
+      }
+
+      // DB에 저장된 해시화된 Refresh Token과 비교
+      const isRefreshTokenValid = await bcrypt.compare(refreshToken, user.refresh_token);
+
+      if (!isRefreshTokenValid) {
+        throw new UnauthorizedException('유효하지 않은 리프레시 토큰입니다');
+      }
+
+      // 새로운 Access Token 생성
+      const newPayload = { sub: user.id, email: user.email };
+      const newAccessToken = this.jwtService.sign(newPayload, {
+        expiresIn: '1h',
+      });
+
+      return {
+        accessToken: newAccessToken,
+      };
+    } catch (error) {
+      throw new UnauthorizedException('유효하지 않거나 만료된 리프레시 토큰입니다');
+    }
+  }
+
+  /**
+   * 로그아웃 - Refresh Token 무효화
+   */
+  async logout(userId: string) {
+    await this.userRepository.update(userId, {
+      refresh_token: null,
+    });
+
+    return {
+      message: '로그아웃되었습니다',
     };
   }
 }
