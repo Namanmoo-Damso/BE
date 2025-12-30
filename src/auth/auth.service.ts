@@ -1,4 +1,8 @@
-import { Injectable, ConflictException, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
@@ -18,7 +22,6 @@ export class AuthService {
     private institutionRepository: Repository<Institution>,
     private jwtService: JwtService,
     private readonly configService: ConfigService,
-
   ) {}
   /**
    * 기관 고유 ID 생성 (6-10자 영문+숫자)
@@ -34,7 +37,9 @@ export class AuthService {
     while (!isUnique) {
       institutionId = '';
       for (let i = 0; i < length; i++) {
-        institutionId += characters.charAt(Math.floor(Math.random() * characters.length));
+        institutionId += characters.charAt(
+          Math.floor(Math.random() * characters.length),
+        );
       }
 
       // ID 중복 체크
@@ -54,7 +59,8 @@ export class AuthService {
    * 회원가입 (처음 회원가입 - 기관 생성 포함)
    */
   async signup(signupDto: SignupDto) {
-    const { institutionName, institutionAddress, email, password, name } = signupDto;
+    const { institutionName, institutionAddress, email, password, name } =
+      signupDto;
 
     // 이메일 중복 체크
     const existingUser = await this.userRepository.findOne({
@@ -112,14 +118,18 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedException('이메일 또는 비밀번호가 일치하지 않습니다');
+      throw new UnauthorizedException(
+        '이메일 또는 비밀번호가 일치하지 않습니다',
+      );
     }
 
     // 비밀번호 검증
     const isPasswordValid = await bcrypt.compare(password, user.password_hash);
 
     if (!isPasswordValid) {
-      throw new UnauthorizedException('이메일 또는 비밀번호가 일치하지 않습니다');
+      throw new UnauthorizedException(
+        '이메일 또는 비밀번호가 일치하지 않습니다',
+      );
     }
 
     // JWT 토큰 생성
@@ -174,7 +184,10 @@ export class AuthService {
       }
 
       // DB에 저장된 해시화된 Refresh Token과 비교
-      const isRefreshTokenValid = await bcrypt.compare(refreshToken, user.refresh_token);
+      const isRefreshTokenValid = await bcrypt.compare(
+        refreshToken,
+        user.refresh_token,
+      );
 
       if (!isRefreshTokenValid) {
         throw new UnauthorizedException('유효하지 않은 리프레시 토큰입니다');
@@ -190,7 +203,9 @@ export class AuthService {
         accessToken: newAccessToken,
       };
     } catch (error) {
-      throw new UnauthorizedException('유효하지 않거나 만료된 리프레시 토큰입니다');
+      throw new UnauthorizedException(
+        '유효하지 않거나 만료된 리프레시 토큰입니다',
+      );
     }
   }
 

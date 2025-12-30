@@ -1,53 +1,51 @@
 services:
-    be:
-        image: node:20-alpine
-        # BE 폴더 안에 backend 폴더가 있는 구조라고 가정 (Dockerfile 참조)
-        working_dir: /app
-        environment:
-            NODE_ENV: development
-            # nodemon 등을 사용하여 코드 변경 시 자동 재시작 (package.json에 스크립트가 있다고 가정)
-            PORT: 8080
-        command: sh -c "npm install && npm run start:dev"
-        ports:
-            - "8080:8080" # 외부 접속을 위해 포트 개방
-        volumes:
-            # 호스트의 BE/backend 폴더를 컨테이너의 /app에 마운트
-            - .:/app
-            # node_modules는 호스트가 아닌 도커 볼륨에 저장 (속도 향상 및 충돌 방지)
-            - be_node_modules:/app/node_modules
-            - ./secrets:/secrets:ro
+  be:
+    image: node:20-alpine
+    # BE 폴더 안에 backend 폴더가 있는 구조라고 가정 (Dockerfile 참조)
+    working_dir: /app
+    environment:
+      NODE_ENV: development
+    command: sh -c "npm install && npm run start:dev"
+    ports:
+      - '8080:8080' # 외부 접속을 위해 포트 개방
+    volumes:
+      # 호스트의 BE/backend 폴더를 컨테이너의 /app에 마운트
+      - .:/app
+      # node_modules는 호스트가 아닌 도커 볼륨에 저장 (속도 향상 및 충돌 방지)
+      - be_node_modules:/app/node_modules
+      - ./secrets:/secrets:ro
 
-    fe:
-        image: node:20-alpine
-        working_dir: /app
-        environment:
-            NODE_ENV: development
-        # Next.js 개발 서버 실행
-        command: sh -c "npm install && npm run dev"
-        ports:
-            - "3000:3000" # 외부 접속을 위해 포트 개방
-        volumes:
-            # BE 폴더 상위(../)로 나가서 FE 폴더를 마운트
-            - ../FE:/app
-            - fe_node_modules:/app/node_modules
+  fe:
+    image: node:20-alpine
+    working_dir: /app
+    environment:
+      NODE_ENV: development
+    # Next.js 개발 서버 실행
+    command: sh -c "npm install && npm run dev"
+    ports:
+      - '3000:3000' # 외부 접속을 위해 포트 개방
+    volumes:
+      # BE 폴더 상위(../)로 나가서 FE 폴더를 마운트
+      - ../FE:/app
+      - fe_node_modules:/app/node_modules
 
-    # 프록시 서버 및 SSL/TLS 처리
-    caddy:
-        image: caddy:alpine
-        restart: unless-stopped
-        ports:
-            - "80:80"
-            - "443:443"
-        volumes:
-            - ./Caddyfile:/etc/caddy/Caddyfile
-            - caddy_data:/data
-            - caddy_config:/config
-        depends_on:
-            - be
-            - fe
+  # 프록시 서버 및 SSL/TLS 처리
+  caddy:
+    image: caddy:alpine
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - be
+      - fe
 
 volumes:
-    be_node_modules:
-    fe_node_modules:
-    caddy_data:
-    caddy_config:
+  be_node_modules:
+  fe_node_modules:
+  caddy_data:
+  caddy_config:

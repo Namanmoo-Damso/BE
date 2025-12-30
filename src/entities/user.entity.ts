@@ -1,4 +1,9 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+} from 'typeorm';
 
 /**
  * 기관 직원 / 개인 보호자 정보
@@ -8,7 +13,7 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string; // 사용자 고유 ID
 
-  @Column({nullable:true})
+  @Column({ nullable: true })
   institution_id: string; // 소속 기관 ID
 
   @Column({ default: 'email' })
