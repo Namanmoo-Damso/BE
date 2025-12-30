@@ -15,6 +15,8 @@ async function bootstrap() {
     'JWT_REFRESH_EXPIRATION',
     'JWT_SECRET',
     'JWT_REFRESH_SECRET',
+    'CORS_ORIGIN',
+    'CORS_CREDENTIALS'
   ];
   for (const envVar of requiredEnvVars) {
     if (!process.env[envVar]) {
@@ -23,7 +25,7 @@ async function bootstrap() {
     }
   }
   // CORS 설정 - 프론트엔드에서 API 호출 허용
-  const corsOrigin = process.env.CORS_ORIGIN || '*';
+  const corsOrigin = process.env.CORS_ORIGIN as string;
   const allowedOrigins =
     corsOrigin === '*'
       ? '*'
@@ -36,6 +38,6 @@ async function bootstrap() {
 
   // NestJS 서버가 받는 모든 요청의 기본 path
   app.setGlobalPrefix('api');
-  await app.listen(process.env.PORT || 8080); // docker-compose.yml에서 PORT 환경변수 주입
+  await app.listen(parseInt(process.env.PORT as string,10)); // docker-compose.yml에서 PORT 환경변수 주입
 }
 bootstrap();

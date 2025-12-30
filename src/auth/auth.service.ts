@@ -135,13 +135,13 @@ export class AuthService {
     // JWT 토큰 생성
     const payload = { sub: user.id, email: user.email };
     const accessToken = this.jwtService.sign(payload, {
-      expiresIn: this.configService.get('JWT_ACCESS_EXPIRATION') || '1h',
+      expiresIn: this.configService.get('JWT_ACCESS_EXPIRATION'),
     });
 
     // Refresh Token 생성
     const refreshToken = this.jwtService.sign(payload, {
       secret: this.configService.get('JWT_REFRESH_SECRET'),
-      expiresIn: this.configService.get('JWT_REFRESH_EXPIRATION') || '7d',
+      expiresIn: this.configService.get('JWT_REFRESH_EXPIRATION'),
     });
 
     // Refresh Token 해시화하여 DB에 저장
@@ -196,7 +196,7 @@ export class AuthService {
       // 새로운 Access Token 생성
       const newPayload = { sub: user.id, email: user.email };
       const newAccessToken = this.jwtService.sign(newPayload, {
-        expiresIn: this.configService.get('JWT_ACCESS_EXPIRATION') || '1h',
+        expiresIn: this.configService.get('JWT_ACCESS_EXPIRATION'),
       });
 
       return {
