@@ -7,14 +7,21 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/entities/user.entity';
 import { Institution } from 'src/entities/institution.entity';
 import { JwtStrategy } from '../utils/jwt.strategy';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, Institution]),
     PassportModule,
-    JwtModule.register({
-      secret: process.env.JWT_SECRET || 'damso-secret-key-change-in-production',
-      signOptions: { expiresIn: '1h' }, // Access Token 유효기간 1시간
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get('JWT_SECRET'),
+        signOptions: { 
+          expiresIn: configService.get('JWT_ACCESS_EXPIRATION')
+        },
+      }),
     }),
   ],
   providers: [AuthService, JwtStrategy],

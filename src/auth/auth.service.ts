@@ -7,6 +7,7 @@ import { User } from 'src/entities/user.entity';
 import { Institution } from 'src/entities/institution.entity';
 import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -16,6 +17,8 @@ export class AuthService {
     @InjectRepository(Institution)
     private institutionRepository: Repository<Institution>,
     private jwtService: JwtService,
+    private readonly configService: ConfigService,
+
   ) {}
   /**
    * 기관 고유 ID 생성 (6-10자 영문+숫자)
@@ -122,13 +125,13 @@ export class AuthService {
     // JWT 토큰 생성
     const payload = { sub: user.id, email: user.email };
     const accessToken = this.jwtService.sign(payload, {
-      expiresIn: '1h', // Access Token 유효기간 1시간
+      expiresIn: this.configService.get('JWT_ACCESS_EXPIRATION') || '1h',
     });
 
     // Refresh Token 생성
     const refreshToken = this.jwtService.sign(payload, {
-      secret: process.env.JWT_REFRESH_SECRET || 'damso-refresh-secret-key-change-in-production',
-      expiresIn: '7d', // Refresh Token 유효기간 7일
+      secret: this.configService.get('JWT_REFRESH_SECRET'),
+      expiresIn: this.configService.get('JWT_REFRESH_EXPIRATION') || '7d',
     });
 
     // Refresh Token 해시화하여 DB에 저장
@@ -158,7 +161,7 @@ export class AuthService {
     try {
       // Refresh Token 검증
       const payload = this.jwtService.verify(refreshToken, {
-        secret: process.env.JWT_REFRESH_SECRET || 'damso-refresh-secret-key-change-in-production',
+        secret: process.env.JWT_REFRESH_SECRET,
       });
 
       // 사용자 찾기
@@ -180,7 +183,7 @@ export class AuthService {
       // 새로운 Access Token 생성
       const newPayload = { sub: user.id, email: user.email };
       const newAccessToken = this.jwtService.sign(newPayload, {
-        expiresIn: '1h',
+        expiresIn: this.configService.get('JWT_ACCESS_EXPIRATION') || '1h',
       });
 
       return {
