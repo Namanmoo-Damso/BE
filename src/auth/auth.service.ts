@@ -214,7 +214,7 @@ export class AuthService {
    */
   async logout(userId: string) {
     await this.userRepository.update(userId, {
-      refresh_token: null as any,
+      refresh_token: null,
     });
 
     return {

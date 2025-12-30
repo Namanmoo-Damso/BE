@@ -43,8 +43,9 @@ export class User {
   @Column({ type: 'timestamp', nullable: true })
   last_login_at: Date; // 마지막 로그인 일시
 
-  @Column({ nullable: true })
-  refresh_token: string; // Refresh Token (해시값 저장)
+  // string | null 사용을 위해 타입 명시 필요
+  @Column({ type: 'text', nullable: true })
+  refresh_token: string | null; // Refresh Token (해시값 저장)
 
   @Column({ nullable: true })
   elder_email: string; // 피보호자 이메일
