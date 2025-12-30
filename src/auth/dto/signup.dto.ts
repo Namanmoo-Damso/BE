@@ -4,6 +4,12 @@
 import { IsEmail, IsString, MinLength } from 'class-validator';
 
 export class SignupDto {
+  @IsString()
+  institutionName: string; // 기관 이름
+
+  @IsString()
+  institutionAddress: string; // 기관 주소
+
   @IsEmail()
   email: string; // 이메일 주소
 

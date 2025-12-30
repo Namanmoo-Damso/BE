@@ -5,11 +5,12 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/entities/user.entity';
+import { Institution } from 'src/entities/institution.entity';
 import { JwtStrategy } from '../utils/jwt.strategy';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, Institution]),
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'damso-secret-key-change-in-production',

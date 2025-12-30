@@ -1,12 +1,12 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryColumn, CreateDateColumn } from 'typeorm';
 
 /**
  * 기관에 대한 정보
  **/
 @Entity('institutions')
 export class Institution {
-  @PrimaryGeneratedColumn('uuid')
-  id: string; // 기관 고유 ID
+  @PrimaryColumn()
+  id: string; // 기관 고유 ID (6-10자 영문+숫자)
 
   @Column()
   name: string; // 기관 이름
