@@ -4,6 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { LivekitModule } from './livekit/livekit.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { AuthModule } from './auth/auth.module';
       }),
     }),
     AuthModule,
+    LivekitModule,
   ],
   controllers: [AppController],
   providers: [AppService],
