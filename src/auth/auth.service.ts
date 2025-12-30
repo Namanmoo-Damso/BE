@@ -132,8 +132,12 @@ export class AuthService {
       );
     }
 
-    // JWT 토큰 생성
-    const payload = { sub: user.id, email: user.email };
+    // JWT 토큰 생성, JWT 페이로드에 institution_id 추가
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      institutionId: user.institution_id,
+    };
     const accessToken = this.jwtService.sign(payload, {
       expiresIn: this.configService.get('JWT_ACCESS_EXPIRATION'),
     });
@@ -160,6 +164,7 @@ export class AuthService {
         id: user.id,
         email: user.email,
         name: user.name,
+        institutionId: user.institution_id,
       },
     };
   }
@@ -194,7 +199,11 @@ export class AuthService {
       }
 
       // 새로운 Access Token 생성
-      const newPayload = { sub: user.id, email: user.email };
+      const newPayload = {
+        sub: user.id,
+        email: user.email,
+        institutionId: user.institution_id,
+      };
       const newAccessToken = this.jwtService.sign(newPayload, {
         expiresIn: this.configService.get('JWT_ACCESS_EXPIRATION'),
       });

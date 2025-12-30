@@ -1,9 +1,15 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 // 등록 유형 정의
 export enum RegistrationType {
   INSTITUTION = 'INSTITUTION', // 복지관 등 기관 등록
-  PRIVATE = 'PRIVATE',         // 자녀 등 개인이 직접 등록
+  PRIVATE = 'PRIVATE', // 자녀 등 개인이 직접 등록
 }
 
 export type RiskLevel = 'HIGH' | 'MEDIUM' | 'LOW';
@@ -51,14 +57,14 @@ export class CareUserEntity {
   regType: RegistrationType;
 
   // 기관 소속일 경우 (기관 관리자용)
-  @Column({ nullable: true })
+  @Column({ name: 'institution_id', nullable: true })
   institutionId: string;
 
   // 개인 등록일 경우 (자녀/보호자 ID)
-  @Column({ nullable: true })
+  @Column({ name: 'guardian_id', nullable: true })
   guardianId: string;
 
-  // 기존 'manager'는 기관 소속일 때만 의미가 있으므로 nullable 처리하거나 
+  // 기존 'manager'는 기관 소속일 때만 의미가 있으므로 nullable 처리하거나
   // 개인 등록 시엔 '보호자 성함' 등으로 활용 가능
   @Column({ nullable: true })
   manager: string;

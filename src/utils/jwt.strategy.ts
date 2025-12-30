@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { User } from 'src/entities/user.entity';
+import { ConfigService } from '@nestjs/config';
 
 /**
  * JWT 인증 전략
@@ -14,12 +15,19 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    private readonly configService: ConfigService,
   ) {
+    const jwtSecret = configService.get<string>('JWT_SECRET');
+
+    if (!jwtSecret) {
+      throw new Error('JWT_SECRET is not set in environment variables');
+    }
+
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey:
-        process.env.JWT_SECRET || 'damso-secret-key-change-in-production',
+      // JWT 서명 키는 환경변수에서만 읽어오도록 유지
+      secretOrKey: jwtSecret,
     });
   }
 
@@ -35,6 +43,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('유효하지 않은 토큰입니다');
     }
 
-    return user; // request.user에 저장됨
+    return {
+      id: user.id,
+      email: user.email,
+      institutionId: user.institution_id,
+    };
   }
 }

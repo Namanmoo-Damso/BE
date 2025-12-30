@@ -16,7 +16,10 @@ export class CareUsersService {
   /**
    * 1. 개별 대상자 등록
    */
-  async create(instId: string, dto: CreateCareUserDto): Promise<CareUserEntity> {
+  async create(
+    instId: string,
+    dto: CreateCareUserDto,
+  ): Promise<CareUserEntity> {
     const newUser = this.userRepository.create({
       ...dto,
       institutionId: instId,
@@ -37,7 +40,7 @@ export class CareUsersService {
 
     try {
       // DTO 배열을 엔티티 객체 배열로 변환
-      const users = dtos.map((dto) =>
+      const users = dtos.map(dto =>
         this.userRepository.create({
           ...dto,
           institutionId: instId,
@@ -53,7 +56,9 @@ export class CareUsersService {
     } catch (err) {
       // 에러 발생 시 진행했던 모든 저장 작업 취소 (Rollback)
       await queryRunner.rollbackTransaction();
-      throw new InternalServerErrorException('단체 등록 중 오류가 발생했습니다. 다시 시도해주세요.');
+      throw new InternalServerErrorException(
+        '단체 등록 중 오류가 발생했습니다. 다시 시도해주세요.',
+      );
     } finally {
       // 사용한 queryRunner 해제
       await queryRunner.release();
