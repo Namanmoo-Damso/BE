@@ -1,0 +1,9 @@
+# LiveKit 서버 HTTP API 포트
+port: 7880
+
+# WebRTC 실시간 통신 설정
+rtc:
+  use_external_ip: true   # EC2 공인 IP 사용 (클라이언트 연결 필수)
+  port_range_start: 50000 # WebRTC 미디어 포트 범위 시작
+  port_range_end: 50100   # WebRTC 미디어 포트 범위 끝
+
